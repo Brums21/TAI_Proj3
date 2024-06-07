@@ -120,9 +120,13 @@ int main (int argc, char* argv[]) {
 	short* samples = new short[audioFile.frames() << 1];
 	audioFile.readf(samples, audioFile.frames());
 
-	fftw_complex in[ws] = {}, out[ws];
+	fftw_complex* in = new fftw_complex[ws];
+	fftw_complex* out = new fftw_complex[ws];
+	for(int i = 0; i < ws; ++i) {
+		in[i][0] = in[i][1] = 0.0;
+	}
 	fftw_plan plan;
-	double power[ws/2];
+	double* power = new double[ws / 2];
 	plan = fftw_plan_dft_1d(ws, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 
 	for(int n = 0 ; n <= (audioFile.frames() - ws * ds) / (sh * ds) ; ++n) {
@@ -151,7 +155,7 @@ int main (int argc, char* argv[]) {
 		if(os) {
 			for(int i = 0 ; i < nf ; ++i) {
 				// To store in a byte, truncate to a max of 255
-				os.put(maxPowerIdx[i] > 255 ? 255 : maxPowerIdx[i]);
+				os.put(static_cast<unsigned char>(maxPowerIdx[i] > 255 ? 255 : maxPowerIdx[i]));
 			}
 
 		}
@@ -159,8 +163,10 @@ int main (int argc, char* argv[]) {
 	}
 
 	delete[] samples;
+	delete[] in;
+	delete[] out;
+	delete[] power;
 	fftw_destroy_plan(plan);
 
 	return 0 ;
 }
-

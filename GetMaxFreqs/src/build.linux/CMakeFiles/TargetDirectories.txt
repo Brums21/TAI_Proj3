@@ -1,0 +1,3 @@
+/Users/dferrero17/College/TAI/TAI_Proj3/GetMaxFreqs/src/build.linux/CMakeFiles/GetMaxFreqs.dir
+/Users/dferrero17/College/TAI/TAI_Proj3/GetMaxFreqs/src/build.linux/CMakeFiles/edit_cache.dir
+/Users/dferrero17/College/TAI/TAI_Proj3/GetMaxFreqs/src/build.linux/CMakeFiles/rebuild_cache.dir
