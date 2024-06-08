@@ -107,7 +107,7 @@ class FileManager:
         return file_size_bits
 
     @staticmethod
-    def list_existing_files(directory: str) -> List[str]:
+    def list_existing_files(directory: str) -> None:
         """
         List the files in the specified directory.
 
