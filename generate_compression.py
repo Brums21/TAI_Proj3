@@ -107,7 +107,7 @@ class FileManager:
         return file_size_bits
 
     @staticmethod
-    def list_existing_files(directory: str) -> None:
+    def list_existing_files() -> None:
         """
         List the files in the specified directory.
 
@@ -221,7 +221,7 @@ def main(compress, gzip, bzip2, lzma, zstd):
     """
 
     if not compress:
-        FileManager.list_existing_files('./song_signatures')
+        FileManager.list_existing_files()
     else:
         compress_flags = {'gzip': gzip, 'bzip2': bzip2, 'lzma': lzma, 'zstd': zstd}
         selected_methods = [method for method, selected in compress_flags.items() if selected]
