@@ -106,6 +106,23 @@ class FileManager:
         file_size_bits = file_size_bytes * 8
         return file_size_bits
 
+    @staticmethod
+    def list_existing_files(directory: str) -> List[str]:
+        """
+        List the files in the specified directory.
+
+        :param directory: The directory to list the files from.
+        :return: A list of file names in the directory.
+        """
+        directories_to_list = ['./song_signatures', './compressed']
+        for directory in directories_to_list:
+            if os.path.isdir(directory):
+                for filename in os.listdir(directory):
+                    print(os.path.join(directory, filename))
+            else:
+                print(f"Directory does not exist: {directory}")
+
+
 
 class CompressionInstance:
     def __init__(self, compression_methods: List[str]):
@@ -202,19 +219,19 @@ def main(compress, gzip, bzip2, lzma, zstd):
     :param zstd: Whether to compress using zstd.
     :return: None
     """
-    if not (compress and (gzip or bzip2 or lzma or zstd)):
-        print('Please provide valid compression option(s). Use --help for more info.')
-        return
 
-    compress_flags = {'gzip': gzip, 'bzip2': bzip2, 'lzma': lzma, 'zstd': zstd}
-    selected_methods = [method for method, selected in compress_flags.items() if selected]
-
-    if compress and selected_methods:
-        app = CompressionInstance(selected_methods)
-        app.run()
+    if not compress:
+        FileManager.list_existing_files('./song_signatures')
     else:
-        print("No valid compression method specified.")
+        compress_flags = {'gzip': gzip, 'bzip2': bzip2, 'lzma': lzma, 'zstd': zstd}
+        selected_methods = [method for method, selected in compress_flags.items() if selected]
+        if selected_methods:
+            app = CompressionInstance(selected_methods)
+            app.run()
+        else:
+            print("No valid compression method specified.")
 
 
 if __name__ == "__main__":
     main()
+
