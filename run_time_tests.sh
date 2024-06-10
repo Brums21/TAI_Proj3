@@ -9,39 +9,54 @@ mkdir -p "$SIGNATURES_DIR"
 rm -rf $OUTPUT_DIR/*
 rm -rf $SIGNATURES_DIR/*
 
-percentages=(0.05 0.1 0.2 0.3 0.4 0.5)
+TIMES=(3 5 7 10 15 20 30)
+PERCENTAGES=(0 0.05 0.10 0.20)
 
 for input_file in "$INPUT_DIR"/*.wav
 do
     base_name=$(basename "$input_file" .wav)
     echo $base_name
     
-    for percentage in "${percentages[@]}"
+    for time in "${TIMES[@]}"
     do
-        
-        output_file="${OUTPUT_DIR}/${base_name}_${noise}_${level}_percent.wav"
+        for percentage in "${PERCENTAGES[@]}"
+        do
+            output_file="${OUTPUT_DIR}/${base_name}_${noise}_${percentage}_percent.wav"
 
-        total_duration=$(soxi -D "$input_file")
-        cut_duration=$(echo "scale=2; $total_duration * $percentage" | bc -l)
-        start_time=$(echo "scale=2; ($total_duration - $cut_duration) / 2" | bc -l)
+            sf1=$(echo "scale=2; 1-$percentage-0.01" | bc -l)
+            sf2=${percentage}
 
-        sox "$input_file" "$output_file".wav trim "$start_time" "$cut_duration"
+            sox -m \
+            -v $(echo "$(sox "$input_file" -n stat -v 2>&1) * ${sf1}" | bc -l) $input_file \
+            -v ${sf2} <(sox "$input_file" -p synth whitenoise) \
+            -b 16 "$output_file"
 
-        signature_file="${SIGNATURES_DIR}/${base_name}_${percentage}_trim"
-        ./GetMaxFreqs/bin/GetMaxFreqs -w "$signature_file" "$output_file".wav
+            total_duration=$(soxi -D "$input_file")
+            start_time=$(echo "scale=2; ($total_duration - $time) / 2" | bc -l)  # start in the middle
 
-        signature_filename=$(basename "$signature_file")
+            temp_file="sox_temp.wav"
+            sox "$output_file" "$temp_file" trim "$start_time" "$time"
+            mv "$temp_file" "$output_file"
 
-        python3 ./generate_compression.py -gzip -bzip2 -lzma -zstd \
-            -folder-test "$SIGNATURES_DIR" \
-            -test-file "$signature_filename" \
-            -test-start "$start_time" \
-            -test-duration "$cut_duration" \
-            -test-percentage "$percentage" \
-            -csv-file "compression_by_time_of_sample.csv"
+            signature_file="${SIGNATURES_DIR}/${base_name}_${noise}_${percentage}_percent"
+            ./GetMaxFreqs/bin/GetMaxFreqs -w "$signature_file" "$output_file"
 
-        rm -rf $OUTPUT_DIR/*
-        rm -rf $SIGNATURES_DIR/*
+            signature_filename=$(basename "$signature_file")
 
+            python3 ./generate_compression.py -gzip -bzip2 -lzma -zstd \
+                -folder-test "$SIGNATURES_DIR" \
+                -test-file "$signature_filename" \
+                -noise-type "whitenoise" \
+                -noise-percentage "$percentage" \
+                -test-start "$start_time" \
+                -test-duration "$time" \
+                -csv-file "compression_by_time.csv"
+
+            rm -rf $OUTPUT_DIR/*
+            rm -rf $SIGNATURES_DIR/*
+        done
     done
 done
+
+rm -rf $OUTPUT_DIR/
+rm -rf $SIGNATURES_DIR/

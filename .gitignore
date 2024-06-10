@@ -158,6 +158,8 @@ GetMaxFreqs/
 song_signatures/
 converted_songs/
 compressed/
+trimmed_songs/
+**.csv
 
 
 # PyCharm

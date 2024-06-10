@@ -127,17 +127,16 @@ class CompressionInstance:
     def __init__(self, compression_methods: List[str], \
         folder_test: Optional[str] = None, file_test: Optional[str] = None, \
             noise_type: Optional[str] = None, noise_percentage: Optional[str] = None, \
-            test_start: Optional[str] = None, test_duration: Optional[str] = None, test_percentage: Optional[str] = None, \
+            test_start: Optional[str] = None, test_duration: Optional[str] = None, \
             csv_file: Optional[str] = None):
-        folder_test = folder_test if folder_test is not None else "interpretations_trim"
-        file_test = file_test if file_test is not None else "output"
+        folder_test = folder_test if folder_test is not None else "analyze"
+        file_test = file_test if file_test is not None else "signature_test"
         
         self.file_test = file_test
         
         self.noise_type = noise_type if noise_type is not None else "none"
         self.noise_percentage = noise_percentage if noise_percentage is not None else "none"
         
-        self.test_percentage = test_percentage if test_percentage is not None else "none"
         self.test_start = test_start if test_start is not None else "none"
         self.test_duration = test_duration if test_duration is not None else "none"
         
@@ -197,7 +196,7 @@ class CompressionInstance:
             csv_file_handle = open(csv_file, mode='a', newline='')
             csv_writer = csv.writer(csv_file_handle)
             if not file_exists:
-                csv_writer.writerow(['file', 'NCD', 'encoding', 'noise_type', 'file_tested', 'noise_percentage', 'test_start', 'test_duration', 'test_percentage'])
+                csv_writer.writerow(['file', 'NCD', 'encoding', 'noise_type', 'file_tested', 'noise_percentage', 'test_start', 'test_duration'])
 
         for method, compressed_trim_segment_file, compressed_trim_segment in compressed_files:
             for signature_file in os.listdir(self.signatures_dir):
@@ -219,7 +218,7 @@ class CompressionInstance:
                         continue
                     
                     normalized_compressed_distance = (combined_file_size_bits - min(file_size_bits, compressed_trim_segment)) / max(file_size_bits, compressed_trim_segment)
-                    result = (base_name, normalized_compressed_distance, method, self.noise_type, self.file_test, self.noise_percentage, self.test_start, self.test_duration, self.test_percentage)
+                    result = (base_name, normalized_compressed_distance, method, self.noise_type, self.file_test, self.noise_percentage, self.test_start, self.test_duration)
                     files_ordered_by_bits.append(result)
                     
                     if csv_writer:
@@ -259,9 +258,8 @@ class CompressionInstance:
 @click.option('-noise-percentage', help="Percentage of noise used.")
 @click.option('-test-start', help="Test file start time.")
 @click.option('-test-duration', help="Test file duration.")
-@click.option('-test-percentage', help="Percentage of considered audio, compared to the original song")
 @click.option('-csv-file', help="File to write the tests to.")
-def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, noise_percentage, test_start, test_duration, test_percentage, csv_file):
+def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, noise_percentage, test_start, test_duration, csv_file):
     """
     Main function to compress songs using various compression methods.
 
@@ -276,7 +274,6 @@ def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, 
     :param noise-percentage: Percentage of noise used.
     :param test-start: Test file start time.
     :param test-duration: Test file duration.
-    :param test-percentage: Test file duration.
     :param csv-file: File to write the tests to.
     :return: None
     """
@@ -284,7 +281,7 @@ def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, 
     compress_flags = {'gzip': gzip, 'bzip2': bzip2, 'lzma': lzma, 'zstd': zstd}
     selected_methods = [method for method, selected in compress_flags.items() if selected]
     if selected_methods:
-        app = CompressionInstance(selected_methods, folder_test, test_file, noise_type, noise_percentage, test_start, test_duration, test_percentage, csv_file)
+        app = CompressionInstance(selected_methods, folder_test, test_file, noise_type, noise_percentage, test_start, test_duration, csv_file)
         app.run(compress)
     else:
         print("No valid compression method specified.")
