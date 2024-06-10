@@ -106,26 +106,11 @@ class FileManager:
         file_size_bits = file_size_bytes * 8
         return file_size_bits
 
-    @staticmethod
-    def list_existing_files() -> None:
-        """
-        List the files in the specified directory.
-
-        :param directory: The directory to list the files from.
-        :return: A list of file names in the directory.
-        """
-        directories_to_list = ['./song_signatures', './compressed']
-        for directory in directories_to_list:
-            if os.path.isdir(directory):
-                for filename in os.listdir(directory):
-                    print(os.path.join(directory, filename))
-            else:
-                print(f"Directory does not exist: {directory}")
-
 
 class CompressionInstance:
     def __init__(self, compression_methods: List[str], \
         folder_test: Optional[str] = None, file_test: Optional[str] = None, \
+            dataset_signature: Optional[str] = None, dataset_compressions: Optional[str] = None,\
             noise_type: Optional[str] = None, noise_percentage: Optional[str] = None, \
             test_start: Optional[str] = None, test_duration: Optional[str] = None, \
             csv_file: Optional[str] = None):
@@ -143,8 +128,8 @@ class CompressionInstance:
         self.csv_file = csv_file
         self.folder_test = folder_test
         self.compression_methods = compression_methods
-        self.signatures_dir = './song_signatures'
-        self.compressed_dir = './compressed'
+        self.signatures_dir = dataset_signature if dataset_signature is not None else './song_signatures'
+        self.compressed_dir = dataset_compressions if dataset_compressions is not None else './compressed'
         self.trim_segment_file = f'./{folder_test}/{file_test}'
 
     def compress_files(self) -> None:
@@ -254,12 +239,14 @@ class CompressionInstance:
 @click.option('-zstd', is_flag=True, help='Compress using zstd.')
 @click.option('-folder-test', help="Folder where tests are.")
 @click.option('-test-file', help="Signature file to test.")
+@click.option('-dataset-signatures', help="Folder where the signatures are located.")
+@click.option('-dataset-compressions', help="Folder where the compressed signatures are located.")
 @click.option('-noise-type', help="Type of noise used.")
 @click.option('-noise-percentage', help="Percentage of noise used.")
 @click.option('-test-start', help="Test file start time.")
 @click.option('-test-duration', help="Test file duration.")
 @click.option('-csv-file', help="File to write the tests to.")
-def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, noise_percentage, test_start, test_duration, csv_file):
+def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, dataset_signature, dataset_compressions, noise_type, noise_percentage, test_start, test_duration, csv_file):
     """
     Main function to compress songs using various compression methods.
 
@@ -270,6 +257,8 @@ def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, 
     :param zstd: Whether to compress using zstd.
     :param folder-test: Folder where the files to be tested are located.
     :param test-file: File to be tested.
+    :param dataset-signatures: Folder where the dataset signatures are located.
+    :param dataset-compressions: Folder where the compressed signatures are located.
     :param noise-type: Type of noise used.
     :param noise-percentage: Percentage of noise used.
     :param test-start: Test file start time.
@@ -281,7 +270,7 @@ def main(compress, gzip, bzip2, lzma, zstd, folder_test, test_file, noise_type, 
     compress_flags = {'gzip': gzip, 'bzip2': bzip2, 'lzma': lzma, 'zstd': zstd}
     selected_methods = [method for method, selected in compress_flags.items() if selected]
     if selected_methods:
-        app = CompressionInstance(selected_methods, folder_test, test_file, noise_type, noise_percentage, test_start, test_duration, csv_file)
+        app = CompressionInstance(selected_methods, folder_test, test_file, dataset_signature, dataset_compressions, noise_type, noise_percentage, test_start, test_duration, csv_file)
         app.run(compress)
     else:
         print("No valid compression method specified.")

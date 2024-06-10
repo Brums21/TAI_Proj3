@@ -52,6 +52,8 @@ Accepted parameters:
  - **-zstd**: Whether to compress using zstd.
  - **-folder-test**: Folder where the file to be tested is located. Default is `analyze/`.
  - **-test-file**: File to be tested. Default is `signature_test`.
+ - **-dataset-signatures**: Folder where the signatures are located. Default is `song_signatures/`.
+ - **-dataset-compressions**: "Folder where the compressed signatures are located. Default is `compressed/`
 
  Parameters used for testing (don't increase functionality):
  - **-noise-type**: Type of noise used.
