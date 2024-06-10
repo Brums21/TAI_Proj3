@@ -1,6 +1,7 @@
 #!/bin/bash
 
 mkdir -p ./converted_songs
+rm -rf converted_songs/*
 
 for i in ./songs/*.mp3
 do
