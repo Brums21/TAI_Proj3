@@ -239,7 +239,7 @@ class CompressionInstance:
 @click.option('-zstd', is_flag=True, help='Compress using zstd.')
 @click.option('-folder-test', help="Folder where tests are.")
 @click.option('-test-file', help="Signature file to test.")
-@click.option('-dataset-signatures', help="Folder where the signatures are located.")
+@click.option('-dataset-signature', help="Folder where the signatures are located.")
 @click.option('-dataset-compressions', help="Folder where the compressed signatures are located.")
 @click.option('-noise-type', help="Type of noise used.")
 @click.option('-noise-percentage', help="Percentage of noise used.")
